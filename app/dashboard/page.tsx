@@ -1,16 +1,27 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Users, CreditCard, Activity, ArrowUp, ArrowDown, RefreshCw } from "lucide-react";
+import { Users, Mic, HelpCircle, RefreshCw, Upload } from "lucide-react";
 import { fetchWithAuth } from "@/lib/api";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
+import StatCard from "@/components/dashboard/StatCard";
+import RevenueChart from "@/components/dashboard/RevenueChart";
+import UserGrowthChart from "@/components/dashboard/UserGrowthChart";
+import RecentTransactions from "@/components/dashboard/RecentTransactions";
+import { MOCK_TRANSACTIONS } from "@/lib/mockData";
 
 interface DashboardStats {
     totalUsers: number;
     activeMatches: number;
     totalRevenue: number;
+    activeUsers: number;
+    newSignups: number;
+    subscribedPercentage: number;
+    freeMatches: number;
+    premiumMatches: number;
     recentRegistrations: any[];
+    [key: string]: any; // Allow for graph data etc
 }
 
 export default function DashboardPage() {
@@ -22,8 +33,6 @@ export default function DashboardPage() {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
             if (user) {
                 loadStats();
-            } else {
-                // Wait for auth to initialize or redirect
             }
         });
         return () => unsubscribe();
@@ -33,12 +42,12 @@ export default function DashboardPage() {
         try {
             setLoading(true);
             setError("");
-            // Fetch platform summary from backend
+            // Fetch platform summary from backend (will use mock data fallback)
             const data = await fetchWithAuth("/api/analytics/summary");
             setStats(data);
         } catch (err: any) {
             console.error(err);
-            setError("Failed to connect to backend API. Please ensure the server is running.");
+            setError("Failed to connect to backend API.");
         } finally {
             setLoading(false);
         }
@@ -46,110 +55,103 @@ export default function DashboardPage() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center h-96 text-zinc-500">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
-                    <p>Loading dashboard stats...</p>
-                </div>
+            <div className="flex items-center justify-center h-screen text-zinc-500">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
             </div>
         );
     }
 
     if (error) {
         return (
-            <div className="bg-red-500/10 border border-red-500/20 p-8 rounded-2xl text-center max-w-lg mx-auto mt-20">
-                <p className="text-red-500 mb-6 font-medium">{error}</p>
-                <button
-                    onClick={loadStats}
-                    className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl font-bold inline-flex items-center gap-2 transition-colors"
-                >
-                    <RefreshCw className="w-5 h-5" /> Try Again
+            <div className="flex flex-col items-center justify-center h-screen">
+                <p className="text-red-500 mb-4">{error}</p>
+                <button onClick={loadStats} className="bg-purple-600 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+                    <RefreshCw size={18} /> Retry
                 </button>
             </div>
         );
     }
 
-    const statCards = [
-        {
-            name: "Total Users",
-            value: stats?.totalUsers?.toLocaleString() || "0",
-            change: "+0%",
-            icon: Users,
-            color: "text-blue-500"
-        },
-        {
-            name: "Active Matches",
-            value: stats?.activeMatches?.toLocaleString() || "0",
-            change: "+0%",
-            icon: Activity,
-            color: "text-green-500"
-        },
-        {
-            name: "Revenue (Coins)",
-            value: stats?.totalRevenue?.toLocaleString() || "0",
-            change: "+0%",
-            icon: CreditCard,
-            color: "text-yellow-500"
-        },
-    ];
-
     return (
-        <div className="space-y-8">
+        <div className="space-y-8 pb-12">
             {/* Header */}
-            <div>
-                <h1 className="text-3xl font-bold text-white mb-2">Dashboard Overview</h1>
-                <p className="text-zinc-400">Welcome back, Admin. Real-time platform statistics.</p>
+            <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <h1 className="text-2xl font-bold text-gray-900">Dashboard Overview</h1>
+                <div className="flex items-center gap-4">
+                    <div className="relative w-64">
+                        <input
+                            type="text"
+                            placeholder="Search"
+                            className="w-full bg-gray-50 border border-gray-200 rounded-full py-2 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        />
+                    </div>
+                </div>
             </div>
 
-            {/* Stats Grid */}
+            {/* Row 1: Stat Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {statCards.map((stat) => {
-                    const Icon = stat.icon;
-                    return (
-                        <div key={stat.name} className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl">
-                            <div className="flex items-center justify-between mb-4">
-                                <div className={`p-3 rounded-xl bg-zinc-950/50 ${stat.color}`}>
-                                    <Icon className="w-6 h-6" />
-                                </div>
-                            </div>
-                            <p className="text-zinc-500 text-sm font-medium">{stat.name}</p>
-                            <h3 className="text-3xl font-black text-white mt-1">{stat.value}</h3>
+                <StatCard
+                    title="Total Users"
+                    value={stats?.totalUsers?.toLocaleString() || "0"}
+                    subtext={`Active: ${stats?.activeUsers?.toLocaleString()}, New: ${stats?.newSignups?.toLocaleString()}`}
+                    icon={Users}
+                    trend="+2.5%"
+                    trendUp={true}
+                    color="bg-cyan-500"
+                />
+
+                {/* Custom Card for Matches/Podcasts */}
+                <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col justify-between h-40">
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <h3 className="text-gray-500 text-sm font-medium mb-1">Total Podcasts</h3>
+                            <div className="text-3xl font-bold text-gray-900">{stats?.activeMatches}</div>
                         </div>
-                    );
-                })}
+                        <div className="p-3 rounded-xl bg-orange-100 bg-opacity-50">
+                            <Mic className="w-6 h-6 text-orange-500" />
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-8 mt-2">
+                        <div>
+                            <span className="block text-xs text-gray-400 font-medium">Free:</span>
+                            <span className="text-sm font-bold text-gray-900">{stats?.freeMatches}</span>
+                        </div>
+                        <div>
+                            <span className="block text-xs text-gray-400 font-medium">Premium:</span>
+                            <span className="text-sm font-bold text-gray-900">{stats?.premiumMatches}</span>
+                        </div>
+                        <button className="bg-black text-white text-xs px-3 py-2 rounded-lg flex items-center gap-1 ml-auto">
+                            + Add New
+                        </button>
+                    </div>
+                </div>
+
+                {/* Custom Card for Quizzes/Revenue Equivalent */}
+                <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col justify-between h-40">
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <h3 className="text-gray-500 text-sm font-medium mb-1">Total Quizzes</h3>
+                            <div className="text-3xl font-bold text-gray-900">{stats?.totalRevenue}</div>
+                        </div>
+                        <div className="p-3 rounded-xl bg-blue-100 bg-opacity-50">
+                            <HelpCircle className="w-6 h-6 text-blue-500" />
+                        </div>
+                    </div>
+                    <button className="bg-black text-white text-xs px-4 py-2 rounded-lg flex items-center gap-1 self-end mt-auto">
+                        + Add New
+                    </button>
+                </div>
             </div>
 
-            {/* Recent Activity Section */}
+            {/* Row 2: Charts */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl min-h-[300px]">
-                    <h3 className="font-bold text-white mb-6">Recent Registrations</h3>
-                    <div className="space-y-4">
-                        {stats?.recentRegistrations?.length ? (
-                            stats.recentRegistrations.map((user: any, i: number) => (
-                                <div key={i} className="flex items-center gap-4 p-3 hover:bg-zinc-800/50 rounded-xl transition-colors">
-                                    <div className="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center text-zinc-500 font-bold">
-                                        {user.displayName?.[0] || "?"}
-                                    </div>
-                                    <div className="flex-1">
-                                        <div className="font-bold text-white">{user.displayName || "Unknown"}</div>
-                                        <div className="text-xs text-zinc-500">{user.email}</div>
-                                    </div>
-                                    <div className="text-xs text-zinc-600">
-                                        {new Date(user.createdAt).toLocaleDateString()}
-                                    </div>
-                                </div>
-                            ))
-                        ) : (
-                            <p className="text-zinc-600 text-center py-10">No recent signups</p>
-                        )}
-                    </div>
-                </div>
-                <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl min-h-[300px]">
-                    <h3 className="font-bold text-white mb-6">Recent Reports</h3>
-                    <div className="flex items-center justify-center h-full pb-10">
-                        <p className="text-zinc-600">No pending reports</p>
-                    </div>
-                </div>
+                <UserGrowthChart data={stats?.userGrowth} />
+                <RevenueChart data={stats?.revenueHistory} />
+            </div>
+
+            {/* Row 3: Transactions & Footer */}
+            <div className="grid grid-cols-1 gap-6">
+                <RecentTransactions transactions={MOCK_TRANSACTIONS} />
             </div>
         </div>
     );
