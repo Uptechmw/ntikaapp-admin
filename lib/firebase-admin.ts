@@ -4,6 +4,12 @@ if (!admin.apps.length) {
     try {
         if (process.env.FIREBASE_SERVICE_ACCOUNT) {
             const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+
+            // Fix private key formatting (newlines)
+            if (serviceAccount.private_key) {
+                serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
+            }
+
             admin.initializeApp({
                 credential: admin.credential.cert(serviceAccount)
             });
