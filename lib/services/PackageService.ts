@@ -17,6 +17,20 @@ export class PackageService {
         }
     }
 
+    static async createPackage(data: any) {
+        try {
+            const docRef = await db().collection('packages').add({
+                ...data,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            });
+            return docRef.id;
+        } catch (error) {
+            console.error('[PackageService] Create Error:', error);
+            throw error;
+        }
+    }
+
     static async updatePackage(packageId: string, data: any) {
         try {
             await db().collection('packages').doc(packageId).set({
