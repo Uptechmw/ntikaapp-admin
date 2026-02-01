@@ -16,6 +16,7 @@ export async function GET(req: NextRequest) {
 
         return NextResponse.json({
             success: true,
+            version: '1.0.3', // Increment this to track deployment
             data: {
                 ...platformStats,
                 userGrowth,
