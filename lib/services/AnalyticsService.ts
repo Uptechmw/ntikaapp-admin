@@ -23,13 +23,21 @@ export class AnalyticsService {
             const matchesSnapshot = await db().collection('matches').count().get();
             const totalMatches = matchesSnapshot.data().count;
 
+            const revenueSnapshot = await db().collection('transactions')
+                .where('status', '==', 'completed')
+                .get();
+            let totalRevenue = 0;
+            revenueSnapshot.forEach(doc => {
+                totalRevenue += (doc.data().amount || 0);
+            });
+
             return {
                 totalUsers,
                 activeUsers,
                 totalSwipes,
                 totalPodcasts: totalMatches,
                 totalQuizzes: 0,
-                totalRevenue: 0,
+                totalRevenue,
                 timestamp: new Date().toISOString()
             };
         } catch (error) {
@@ -91,13 +99,33 @@ export class AnalyticsService {
     }
 
     static async getRevenueHistory() {
-        return [
-            { name: "Jan", revenue: 0 },
-            { name: "Feb", revenue: 0 },
-            { name: "Mar", revenue: 0 },
-            { name: "Apr", revenue: 0 },
-            { name: "May", revenue: 0 },
-            { name: "Jun", revenue: 0 },
-        ];
+        try {
+            const txSnapshot = await db().collection('transactions')
+                .where('status', '==', 'completed')
+                .orderBy('timestamp', 'asc')
+                .get();
+
+            const monthlyRevenue: Record<string, number> = {
+                "Jan": 0, "Feb": 0, "Mar": 0, "Apr": 0, "May": 0, "Jun": 0,
+                "Jul": 0, "Aug": 0, "Sep": 0, "Oct": 0, "Nov": 0, "Dec": 0
+            };
+
+            txSnapshot.forEach(doc => {
+                const data = doc.data();
+                const date = data.timestamp?.toDate?.() || new Date(data.timestamp);
+                const month = date.toLocaleString('default', { month: 'short' });
+                if (monthlyRevenue.hasOwnProperty(month)) {
+                    monthlyRevenue[month] += (data.amount || 0);
+                }
+            });
+
+            return Object.entries(monthlyRevenue).map(([name, revenue]) => ({
+                name,
+                revenue
+            })).slice(0, new Date().getMonth() + 1);
+        } catch (error) {
+            console.error('[AnalyticsService] Revenue History Error:', error);
+            return [];
+        }
     }
 }

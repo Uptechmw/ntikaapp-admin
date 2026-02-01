@@ -8,45 +8,52 @@ interface Transaction {
     date: string;
 }
 
-export default function RecentTransactions({ transactions }: { transactions: Transaction[] }) {
-    return (
-        <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-            <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-bold text-gray-900">Recent Transactions</h3>
-                <button className="text-sm text-purple-600 font-bold hover:text-purple-700">View All</button>
-            </div>
+export default function RecentTransactions({ transactions }: { transactions: any[] }) {
+    if (!transactions || transactions.length === 0) return (
+        <div className="py-20 text-center">
+            <p className="text-zinc-400 font-bold uppercase text-xs tracking-widest">No recent audit logs available</p>
+        </div>
+    );
 
-            <div className="overflow-x-auto">
-                <table className="w-full">
-                    <thead>
-                        <tr className="text-left text-gray-400 text-xs uppercase tracking-wider">
-                            <th className="pb-4 font-medium">User</th>
-                            <th className="pb-4 font-medium">Type</th>
-                            <th className="pb-4 font-medium">Amount</th>
-                            <th className="pb-4 font-medium">Status</th>
-                            <th className="pb-4 font-medium text-right">Action</th>
+    return (
+        <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+                <thead>
+                    <tr className="border-b border-zinc-50">
+                        <th className="pb-6 text-[10px] font-black text-zinc-300 uppercase tracking-widest">Entity / Subject</th>
+                        <th className="pb-6 text-[10px] font-black text-zinc-300 uppercase tracking-widest">Activity Type</th>
+                        <th className="pb-6 text-[10px] font-black text-zinc-300 uppercase tracking-widest">Magnitude</th>
+                        <th className="pb-6 text-[10px] font-black text-zinc-300 uppercase tracking-widest">Timestamp</th>
+                        <th className="pb-6 text-[10px] font-black text-zinc-300 uppercase tracking-widest text-right">Audit</th>
+                    </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-50">
+                    {transactions.map((tx) => (
+                        <tr key={tx.id} className="group hover:bg-zinc-50/50 transition-colors">
+                            <td className="py-5">
+                                <span className="font-black text-zinc-900 leading-none">{tx.user || tx.userId || "System"}</span>
+                            </td>
+                            <td className="py-5">
+                                <span className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider ${tx.type?.includes('Premium') ? 'bg-orange-50 text-orange-600' : 'bg-zinc-100 text-zinc-600'
+                                    }`}>
+                                    {tx.type || "Interaction"}
+                                </span>
+                            </td>
+                            <td className="py-5">
+                                <span className="font-black text-zinc-900">{tx.amount ? `$${tx.amount}` : "--"}</span>
+                            </td>
+                            <td className="py-5 text-zinc-400 font-bold text-xs">
+                                {new Date(tx.date || tx.timestamp).toLocaleDateString()}
+                            </td>
+                            <td className="py-5 text-right">
+                                <button className="p-2 bg-white border border-zinc-100 rounded-lg text-zinc-400 hover:text-zinc-950 hover:border-zinc-300 transition-all">
+                                    <span className="text-[10px] font-black uppercase tracking-widest px-2">Inspect</span>
+                                </button>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody className="text-sm">
-                        {transactions.map((tx) => (
-                            <tr key={tx.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors">
-                                <td className="py-4 font-bold text-gray-900">{tx.user}</td>
-                                <td className="py-4 text-gray-500">
-                                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${tx.type === 'Premium Sub' ? 'bg-orange-100 text-orange-600' : 'bg-blue-100 text-blue-600'
-                                        }`}>
-                                        {tx.type}
-                                    </span>
-                                </td>
-                                <td className="py-4 font-bold text-gray-900">{tx.amount}</td>
-                                <td className="py-4 text-gray-500">{tx.date}</td>
-                                <td className="py-4 text-right">
-                                    <button className="text-purple-600 hover:text-purple-800 text-xs font-bold">View</button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+                    ))}
+                </tbody>
+            </table>
         </div>
     );
 }

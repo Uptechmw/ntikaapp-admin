@@ -8,10 +8,35 @@ export class UserService {
                 .limit(limit)
                 .get();
 
-            return snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
+            const users = await Promise.all(snapshot.docs.map(async (doc) => {
+                const data = doc.data();
+
+                // Get user earnings from transactions if possible
+                let earnings = 0;
+                try {
+                    const txSnapshot = await db().collection('transactions')
+                        .where('userId', '==', doc.id)
+                        .where('status', '==', 'completed')
+                        .get();
+
+                    txSnapshot.forEach(tx => {
+                        const txData = tx.data();
+                        earnings += (txData.amount || 0);
+                    });
+                } catch (e) {
+                    // Silently fail if transactions dont exist yet
+                }
+
+                return {
+                    id: doc.id,
+                    ...data,
+                    earnings,
+                    displayName: data.displayName || data.name || "Unknown User",
+                    createdAt: data.createdAt?.toDate?.()?.toISOString() || data.createdAt || new Date().toISOString()
+                };
             }));
+
+            return users;
         } catch (error) {
             console.error('[UserService] List Error:', error);
             throw error;
