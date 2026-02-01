@@ -128,4 +128,52 @@ export class AnalyticsService {
             return [];
         }
     }
+
+    static async getRecentFinancials(limitCount: number = 10) {
+        try {
+            const [txSnap, payoutSnap] = await Promise.all([
+                db().collection('transactions')
+                    .orderBy('createdAt', 'desc')
+                    .limit(limitCount)
+                    .get(),
+                db().collection('payouts')
+                    .orderBy('createdAt', 'desc')
+                    .limit(limitCount)
+                    .get()
+            ]);
+
+            const activities = [
+                ...txSnap.docs.map(doc => {
+                    const data = doc.data();
+                    return {
+                        id: doc.id,
+                        user: (data.userId || 'User').substring(0, 8),
+                        type: 'Coin Purchase',
+                        amount: data.amount,
+                        status: data.status,
+                        date: (data.createdAt?.toDate?.() || data.timestamp?.toDate?.() || new Date(data.createdAt || data.timestamp || Date.now())).toISOString()
+                    };
+                }),
+                ...payoutSnap.docs.map(doc => {
+                    const data = doc.data();
+                    return {
+                        id: doc.id,
+                        user: (data.userId || 'User').substring(0, 8),
+                        type: 'Withdrawal',
+                        amount: data.amount,
+                        status: data.status,
+                        date: (data.createdAt?.toDate?.() || new Date(data.createdAt || Date.now())).toISOString()
+                    };
+                })
+            ];
+
+            return activities
+                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                .slice(0, limitCount);
+        } catch (error) {
+            console.error('[AnalyticsService] Financials Error:', error);
+            // Fallback to empty if ordering fails (e.g. index missing)
+            return [];
+        }
+    }
 }

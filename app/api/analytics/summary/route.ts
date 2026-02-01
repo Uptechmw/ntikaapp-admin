@@ -12,16 +12,16 @@ export async function GET(req: NextRequest) {
         const platformStats = await AnalyticsService.getPlatformStats();
         const userGrowth = await AnalyticsService.getUserGrowth();
         const revenueHistory = await AnalyticsService.getRevenueHistory();
-        const recentActivity = await AnalyticsService.getTopEvents(5);
+        const recentFinancials = await AnalyticsService.getRecentFinancials(5);
 
         return NextResponse.json({
             success: true,
-            version: '1.0.3', // Increment this to track deployment
+            version: '1.0.4',
             data: {
                 ...platformStats,
                 userGrowth,
                 revenueHistory,
-                recentActivity
+                recentActivity: recentFinancials
             }
         });
     } catch (error) {

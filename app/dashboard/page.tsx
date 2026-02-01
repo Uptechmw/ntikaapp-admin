@@ -168,14 +168,14 @@ export default function DashboardPage() {
                 </div>
             </div>
 
-            {/* Operations Audit */}
+            {/* Financial Stream */}
             <div className="bg-white border border-zinc-100 rounded-[2.5rem] p-10 shadow-sm overflow-hidden">
                 <div className="flex items-center justify-between mb-10">
                     <div>
-                        <h3 className="text-xl font-black text-zinc-900 uppercase tracking-tight">Operational Audit</h3>
-                        <p className="text-zinc-400 text-sm font-bold">Snapshot of recent platform activities and transactions</p>
+                        <h3 className="text-xl font-black text-zinc-900 uppercase tracking-tight">Financial Stream</h3>
+                        <p className="text-zinc-400 text-sm font-bold">Recent coin purchases and withdrawal activities</p>
                     </div>
-                    <button className="text-xs font-black text-purple-600 uppercase tracking-widest hover:underline decoration-2 underline-offset-8">View Master Log</button>
+                    <button className="text-xs font-black text-purple-600 uppercase tracking-widest hover:underline decoration-2 underline-offset-8">All Transactions</button>
                 </div>
                 <RecentTransactions transactions={stats?.recentActivity || []} />
             </div>

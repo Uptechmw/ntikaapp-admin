@@ -12,7 +12,8 @@ import {
     X,
     Mic,
     ShieldAlert,
-    Gem
+    Gem,
+    BookOpen
 } from "lucide-react";
 import { useState } from "react";
 import { clsx } from "clsx";
@@ -24,6 +25,7 @@ const navItems = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { name: "Manage Matches", href: "/dashboard/matches", icon: Mic },
     { name: "Manage Users", href: "/dashboard/users", icon: Users },
+    { name: "Manage Stories", href: "/dashboard/stories", icon: BookOpen },
     { name: "Subscription", href: "/dashboard/coins", icon: Gem },
     { name: "Content Moderation", href: "/dashboard/moderation", icon: ShieldAlert },
     { name: "Settings", href: "/dashboard/settings", icon: Settings },
