@@ -22,8 +22,8 @@ export async function verifyAdmin(req: NextRequest) {
         }
 
         return { uid: decodedToken.uid, user: userData };
-    } catch (error) {
-        console.error('Auth verification failed:', error);
-        return { error: 'Unauthorized: Invalid token', status: 401 };
+    } catch (error: any) {
+        console.error('Auth verification failed. Token:', token.substring(0, 10) + '...', 'Error:', error.message);
+        return { error: `Unauthorized: ${error.message}`, status: 401 };
     }
 }
