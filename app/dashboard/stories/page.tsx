@@ -74,100 +74,101 @@ export default function StoriesPage() {
                     <button onClick={loadStories} className="mt-4 text-orange-600 font-bold text-sm underline underline-offset-4">Refresh feed</button>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {stories.map((story) => (
-                        <div key={story.id} className="bg-white border border-zinc-100 rounded-[2.5rem] p-10 relative overflow-hidden group hover:shadow-2xl hover:shadow-orange-900/5 transition-all duration-500 flex flex-col">
-
-                            <div className="flex items-center justify-between mb-8">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-2xl bg-zinc-50 flex items-center justify-center border border-zinc-100 overflow-hidden">
-                                        {story.creatorPhotoUrl ? (
-                                            <img src={story.creatorPhotoUrl} alt="" className="w-full h-full object-cover" />
-                                        ) : (
-                                            <User className="w-5 h-5 text-zinc-400" />
-                                        )}
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-black text-zinc-900">@{story.creatorName || 'anonymous'}</p>
-                                        <div className="flex items-center gap-2">
-                                            <Clock className="w-3 h-3 text-zinc-300" />
-                                            <p className="text-[10px] font-black text-zinc-300 uppercase tracking-widest">
+                <div className="bg-white border border-zinc-100 rounded-[2.5rem] p-10 shadow-sm overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="border-b border-zinc-50">
+                                    <th className="pb-6 text-[10px] font-black text-zinc-300 uppercase tracking-widest">Story / Category</th>
+                                    <th className="pb-6 text-[10px] font-black text-zinc-300 uppercase tracking-widest">Author</th>
+                                    <th className="pb-6 text-[10px] font-black text-zinc-300 uppercase tracking-widest text-center">Stats</th>
+                                    <th className="pb-6 text-[10px] font-black text-zinc-300 uppercase tracking-widest text-center">Earnings</th>
+                                    <th className="pb-6 text-[10px] font-black text-zinc-300 uppercase tracking-widest text-right">Date</th>
+                                    <th className="pb-6 text-[10px] font-black text-zinc-300 uppercase tracking-widest text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-zinc-50">
+                                {stories.map((story) => (
+                                    <tr key={story.id} className="group hover:bg-zinc-50/50 transition-colors">
+                                        <td className="py-6 pr-6 max-w-sm">
+                                            <div className="flex flex-col gap-2">
+                                                <div className={`self-start px-2 py-1 rounded-lg border ${getCategoryStyles(story.category).border} ${getCategoryStyles(story.category).bg} inline-flex items-center gap-1.5`}>
+                                                    <div className={`w-1 h-1 rounded-full ${getCategoryStyles(story.category).dot}`} />
+                                                    <span className={`text-[8px] font-black uppercase tracking-wider ${getCategoryStyles(story.category).text}`}>
+                                                        {story.category?.replace('-', ' ')}
+                                                    </span>
+                                                </div>
+                                                <p className="font-bold text-zinc-800 line-clamp-2 text-sm leading-relaxed">"{story.teaser}"</p>
+                                                {story.parts && (
+                                                    <span className="text-[10px] font-bold text-zinc-400">
+                                                        {story.parts.length} Chapters
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </td>
+                                        <td className="py-6 pr-6">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded-xl bg-zinc-50 flex items-center justify-center border border-zinc-100 overflow-hidden">
+                                                    {story.creatorPhotoUrl ? (
+                                                        <img src={story.creatorPhotoUrl} alt="" className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <User className="w-4 h-4 text-zinc-400" />
+                                                    )}
+                                                </div>
+                                                <span className="text-sm font-black text-zinc-900">@{story.creatorName || 'anonymous'}</span>
+                                            </div>
+                                        </td>
+                                        <td className="py-6 pr-6">
+                                            <div className="flex gap-4 justify-center">
+                                                <div className="text-center">
+                                                    <div className="flex items-center gap-1 text-zinc-900 font-black text-xs">
+                                                        <Eye className="w-3 h-3 text-blue-500" />
+                                                        {story.stats?.views || 0}
+                                                    </div>
+                                                </div>
+                                                <div className="text-center">
+                                                    <div className="flex items-center gap-1 text-zinc-900 font-black text-xs">
+                                                        <MessageSquare className="w-3 h-3 text-zinc-400" />
+                                                        {story.stats?.commentsCount || 0}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="py-6 pr-6 text-center">
+                                            <div className="inline-flex flex-col items-center">
+                                                <div className="flex items-center gap-1.5 font-black text-zinc-900 text-sm">
+                                                    <span className="text-purple-600">$</span>
+                                                    {story.stats?.totalEarned || 0}
+                                                </div>
+                                                <div className="flex items-center gap-1 mt-1 text-[10px] font-bold text-zinc-400 uppercase tracking-wide">
+                                                    <Loader2 className="w-3 h-3 text-orange-400" />
+                                                    {story.stats?.giftsReceived || 0} Gifts
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="py-6 text-right">
+                                            <span className="text-xs font-bold text-zinc-400">
                                                 {new Date(story.createdAt).toLocaleDateString()}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border ${getCategoryStyles(story.category).border} ${getCategoryStyles(story.category).bg}`}>
-                                    <div className={`w-1.5 h-1.5 rounded-full ${getCategoryStyles(story.category).dot}`} />
-                                    <span className={`text-[10px] font-black uppercase tracking-wider ${getCategoryStyles(story.category).text}`}>
-                                        {story.category?.replace('-', ' ')}
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className="flex-1 mb-10">
-                                <div className="relative">
-                                    <Quote className="absolute -top-4 -left-4 w-12 h-12 text-zinc-50 -z-0" />
-                                    <p className="text-xl font-bold text-zinc-800 leading-relaxed relative z-10 italic">
-                                        "{story.teaser}"
-                                    </p>
-                                </div>
-                                {story.parts && (
-                                    <div className="mt-6 flex gap-2">
-                                        <div className="px-3 py-1 bg-zinc-100 rounded-lg text-[10px] font-black text-zinc-500 uppercase tracking-widest">
-                                            {story.parts.length} Chapters
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="grid grid-cols-4 gap-4 pb-8 border-b border-zinc-50 mb-8">
-                                <div className="text-center">
-                                    <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1.5">Views</p>
-                                    <div className="flex items-center justify-center gap-1.5 font-black text-zinc-900">
-                                        <Eye className="w-3.5 h-3.5 text-blue-500" />
-                                        {story.stats?.views || 0}
-                                    </div>
-                                </div>
-                                <div className="text-center">
-                                    <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1.5">Earned</p>
-                                    <div className="flex items-center justify-center gap-1.5 font-black text-zinc-900">
-                                        <Heart className="w-3.5 h-3.5 text-purple-500" />
-                                        {story.stats?.totalEarned || 0}
-                                    </div>
-                                </div>
-                                <div className="text-center">
-                                    <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1.5">Gifts</p>
-                                    <div className="flex items-center justify-center gap-1.5 font-black text-zinc-900">
-                                        <Loader2 className="w-3.5 h-3.5 text-orange-500" />
-                                        {story.stats?.giftsReceived || 0}
-                                    </div>
-                                </div>
-                                <div className="text-center">
-                                    <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1.5">Replies</p>
-                                    <div className="flex items-center justify-center gap-1.5 font-black text-zinc-900">
-                                        <MessageSquare className="w-3.5 h-3.5 text-zinc-400" />
-                                        {story.stats?.commentsCount || 0}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="flex gap-4">
-                                <button
-                                    className="flex-1 bg-white border border-zinc-200 hover:border-zinc-900 hover:bg-zinc-950 hover:text-white text-zinc-900 font-black py-3 rounded-2xl flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95 text-xs uppercase tracking-widest"
-                                >
-                                    Review Content
-                                </button>
-                                <button
-                                    onClick={() => handleDelete(story.id)}
-                                    className="p-3 bg-red-50 text-red-500 border border-red-100 rounded-2xl hover:bg-red-500 hover:text-white hover:border-red-500 transition-all shadow-sm active:scale-90"
-                                >
-                                    <Trash2 className="w-5 h-5" />
-                                </button>
-                            </div>
-                        </div>
-                    ))}
+                                            </span>
+                                        </td>
+                                        <td className="py-6 pl-6 text-right">
+                                            <div className="flex items-center justify-end gap-2">
+                                                <button className="p-2 bg-white border border-zinc-200 rounded-lg text-zinc-600 hover:text-zinc-900 hover:border-zinc-900 transition-all shadow-sm">
+                                                    <Eye className="w-4 h-4" />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDelete(story.id)}
+                                                    className="p-2 bg-red-50 text-red-500 border border-red-100 rounded-lg hover:bg-red-500 hover:text-white hover:border-red-500 transition-all shadow-sm active:scale-95"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             )}
         </div>
