@@ -1,28 +1,37 @@
 import * as admin from 'firebase-admin';
 
-if (!admin.apps.length) {
+const initAdmin = () => {
+    if (admin.apps.length) return;
+
     try {
-        if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-            const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-
-            // Fix private key formatting (newlines)
-            if (serviceAccount.private_key) {
-                serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n').trim();
-            }
-
-            admin.initializeApp({
-                credential: admin.credential.cert(serviceAccount)
-            });
-            console.log('Firebase Admin initialized successfully in Next.js');
-        } else {
-            console.warn('FIREBASE_SERVICE_ACCOUNT not found in environment. Server-side Firebase features will be restricted.');
+        const saVar = process.env.FIREBASE_SERVICE_ACCOUNT;
+        if (!saVar) {
+            console.warn('FIREBASE_SERVICE_ACCOUNT missing');
+            return;
         }
-    } catch (error) {
-        console.error('Failed to initialize Firebase Admin:', error);
+
+        const serviceAccount = JSON.parse(saVar);
+
+        // Robust private key cleaning
+        if (serviceAccount.private_key) {
+            serviceAccount.private_key = serviceAccount.private_key
+                .replace(/\\n/g, '\n') // Fix escaped newlines
+                .replace(/\n\n/g, '\n') // Fix double newlines
+                .trim();
+        }
+
+        admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount)
+        });
+        console.log('Firebase Admin initialized');
+    } catch (error: any) {
+        console.error('Firebase Admin init error:', error.message);
+        // We don't throw here to allow the build to continue if it's just a build-time check
     }
-}
+};
 
 const getDb = () => {
+    initAdmin();
     if (!admin.apps.length) {
         throw new Error("Firebase Admin not initialized. Check FIREBASE_SERVICE_ACCOUNT.");
     }
@@ -30,6 +39,7 @@ const getDb = () => {
 };
 
 const getAuth = () => {
+    initAdmin();
     if (!admin.apps.length) {
         throw new Error("Firebase Admin not initialized. Check FIREBASE_SERVICE_ACCOUNT.");
     }
