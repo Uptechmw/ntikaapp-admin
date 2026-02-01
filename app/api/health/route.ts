@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { db } from '@/lib/firebase-admin';
 
 export async function GET() {
     return NextResponse.json({
@@ -21,7 +22,16 @@ export async function GET() {
                         footerMatch: trimmed.endsWith('-----END PRIVATE KEY-----')
                     };
                 } catch { return 'JSON-parse-failed'; }
-            })() : 'missing'
+            })() : 'missing',
+            firestoreTest: await (async () => {
+                try {
+                    // Try to list collections (requires Cloud Datastore Viewer role)
+                    const collections = await db().listCollections();
+                    return { status: 'success', count: collections.length };
+                } catch (e: any) {
+                    return { status: 'failed', error: e.message };
+                }
+            })()
         }
     });
 }
