@@ -56,32 +56,32 @@ export default function CoinsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {packages.map((pkg, i) => (
                         <div key={pkg.id || i} className="bg-white border border-zinc-100 rounded-[2.5rem] p-10 relative overflow-hidden group hover:shadow-2xl hover:shadow-purple-900/5 transition-all duration-500 flex flex-col items-start min-h-[480px]">
-                            {pkg.isPopular && (
+                            {pkg.badge && (
                                 <div className="absolute top-0 right-0 bg-zinc-950 text-white text-[10px] font-black tracking-widest px-6 py-3 rounded-bl-3xl uppercase flex items-center gap-2 border-b border-l border-zinc-800">
                                     <Sparkles className="w-3 h-3 text-orange-400" />
-                                    Featured Item
+                                    {pkg.badge}
                                 </div>
                             )}
 
                             <div className="w-20 h-20 bg-zinc-50 rounded-3xl flex items-center justify-center mb-10 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 border border-zinc-100">
-                                <Coins className="w-10 h-10 text-zinc-900" />
+                                <Coins className="w-10 h-10 text-zinc-900" style={{ color: pkg.color || 'inherit' }} />
                             </div>
 
                             <div className="mb-auto w-full">
                                 <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-3 block">Bundle Capacity</span>
                                 <h3 className="text-5xl font-black text-zinc-900 tracking-tighter mb-2">
-                                    {pkg.coins?.toLocaleString()}
+                                    {(pkg.amount || pkg.coins)?.toLocaleString()}
                                     <span className="text-zinc-300 font-bold ml-2">Credits</span>
                                 </h3>
                                 <p className="text-zinc-400 font-bold text-sm mb-10 uppercase tracking-tight">
-                                    {pkg.bonusText || "Standard Credit Volume"}
+                                    {pkg.bonusText || (pkg.badge ? `${pkg.badge} PACKAGE` : "Standard Credit Volume")}
                                 </p>
 
                                 <div className="p-6 bg-zinc-50 rounded-3xl border border-zinc-100 mb-10 group-hover:bg-purple-50 group-hover:border-purple-100 transition-colors duration-500">
                                     <div className="flex items-baseline gap-1">
                                         <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mr-2">Unit Price:</span>
                                         <span className="text-4xl font-black text-zinc-900 tracking-tighter">
-                                            {pkg.currencySymbol || "$"}{pkg.price}
+                                            {pkg.currencySymbol || "$"}{pkg.usdPrice || pkg.price}
                                         </span>
                                     </div>
                                 </div>
