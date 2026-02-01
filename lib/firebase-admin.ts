@@ -7,7 +7,7 @@ if (!admin.apps.length) {
 
             // Fix private key formatting (newlines)
             if (serviceAccount.private_key) {
-                serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
+                serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n').trim();
             }
 
             admin.initializeApp({
