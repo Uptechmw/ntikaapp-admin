@@ -23,7 +23,10 @@ export async function verifyAdmin(req: NextRequest) {
 
         return { uid: decodedToken.uid, user: userData };
     } catch (error: any) {
-        console.error('Auth verification failed. Token:', token.substring(0, 10) + '...', 'Error:', error.message);
-        return { error: `Unauthorized: ${error.message}`, status: 401 };
+        console.error('Auth verification failed. Token prefix:', token.substring(0, 10), 'Err:', error.message);
+        return {
+            error: `Unauthorized: [${error.code || 'unknown'}] ${error.message}`,
+            status: 401
+        };
     }
 }
