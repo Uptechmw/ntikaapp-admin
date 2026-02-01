@@ -35,9 +35,13 @@ export async function fetchWithAuth(endpoint: string, options: RequestInit = {})
 
     const json = await response.json();
 
-    // Unwrap standard backend response format { success: true, data: ... }
-    if (json.success === true && json.data !== undefined) {
-        return json.data;
+    // Standard backend response format: { success: true, data: ... }
+    if (json.hasOwnProperty('success')) {
+        if (json.success) {
+            return json.data !== undefined ? json.data : json;
+        } else {
+            throw new Error(json.error || "API returned success: false");
+        }
     }
 
     return json;

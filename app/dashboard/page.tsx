@@ -42,8 +42,9 @@ export default function DashboardPage() {
         try {
             setLoading(true);
             setError("");
-            // Fetch platform summary from backend (will use mock data fallback)
+            // Fetch platform summary from backend
             const data = await fetchWithAuth("/api/analytics/summary");
+            // The data variable now contains the 'data' property of the response thanks to fetchWithAuth fix
             setStats(data);
         } catch (err: any) {
             console.error(err);
