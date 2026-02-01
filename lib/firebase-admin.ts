@@ -22,23 +22,13 @@ const initAdmin = () => {
             // 2. Remove any accidentally doubled backslashes
             key = key.replace(/\\\\n/g, '\n');
 
-            // 3. Normalize the PEM header/footer if they are slightly malformed
-            // Search for "BEGIN PRIVATE KEY" and ensure it has 5 dashes
-            const beginMatch = key.match(/BEGIN PRIVATE KEY/);
-            const endMatch = key.match(/END PRIVATE KEY/);
+            // 3. Bulletproof re-construction
+            // This regex captures the base64 content between any variation of the labels
+            const bodyMatch = key.match(/BEGIN PRIVATE KEY[\s\-]+([\s\S]+?)[\s\-]+END PRIVATE KEY/);
 
-            if (beginMatch && endMatch) {
-                // Extract just the base64 part between any kind of dashes/labels
-                // This fix handles cases where dashes were lost or doubled
-                const base64Part = key
-                    .split(/-----BEGIN [^-]+-----/)[1]
-                    ?.split(/-----END [^-]+-----/)[0]
-                    ?.replace(/\s+/g, ''); // Remove all whitespace/newlines from base64
-
-                if (base64Part) {
-                    // Reconstruct perfectly
-                    key = `-----BEGIN PRIVATE KEY-----\n${base64Part}\n-----END PRIVATE KEY-----\n`;
-                }
+            if (bodyMatch && bodyMatch[1]) {
+                const base64Part = bodyMatch[1].replace(/\s+/g, ''); // Remove all newlines/spaces
+                key = `-----BEGIN PRIVATE KEY-----\n${base64Part}\n-----END PRIVATE KEY-----\n`;
             }
 
             serviceAccount.private_key = key.trim();
