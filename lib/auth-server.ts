@@ -25,7 +25,7 @@ export async function verifyAdmin(req: NextRequest) {
     } catch (error: any) {
         console.error('Auth verification failed. Token prefix:', token.substring(0, 10), 'Err:', error.message);
         return {
-            error: `[UNIFIED-AUTH-DEBUG] Unauthorized: [${error.code || 'unknown'}] ${error.message}`,
+            error: `Unauthorized: [${error.code || 'unknown'}] ${error.message}`,
             status: 401
         };
     }

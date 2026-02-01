@@ -48,14 +48,7 @@ export default function DashboardPage() {
             setStats(data);
         } catch (err: any) {
             console.error(err);
-            // Try to verify if we are hitting the right version
-            try {
-                const health = await fetch('/api/health').then(r => r.json());
-                console.log('API Health Check:', health);
-                setError(`API Error: ${err.message} (Version: ${health.version})`);
-            } catch (hErr) {
-                setError("Failed to connect to backend API. Deployment might be stuck.");
-            }
+            setError(err.message || "Failed to connect to backend API.");
         } finally {
             setLoading(false);
         }
