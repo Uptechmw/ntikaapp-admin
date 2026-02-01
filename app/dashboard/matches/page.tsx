@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { Search, Mic, Plus, MoreVertical, Globe, Lock, Clock, Loader2, AlertCircle } from "lucide-react";
 import { fetchWithAuth } from "@/lib/api";
+import { auth } from "@/lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
 export default function MatchesPage() {
     const [searchTerm, setSearchTerm] = useState("");
@@ -10,7 +12,12 @@ export default function MatchesPage() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        loadMatches();
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                loadMatches();
+            }
+        });
+        return () => unsubscribe();
     }, []);
 
     const loadMatches = async () => {

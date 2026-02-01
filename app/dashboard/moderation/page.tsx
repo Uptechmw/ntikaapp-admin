@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { AlertTriangle, CheckCircle, XCircle, MoreVertical, User, MessageCircle, Loader2, AlertCircle } from "lucide-react";
 import { fetchWithAuth } from "@/lib/api";
+import { auth } from "@/lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
 export default function ModerationPage() {
     const [reports, setReports] = useState<any[]>([]);
@@ -10,7 +12,12 @@ export default function ModerationPage() {
     const [filter, setFilter] = useState<'pending' | 'resolved' | 'all'>('pending');
 
     useEffect(() => {
-        loadReports();
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                loadReports();
+            }
+        });
+        return () => unsubscribe();
     }, [filter]);
 
     const loadReports = async () => {
