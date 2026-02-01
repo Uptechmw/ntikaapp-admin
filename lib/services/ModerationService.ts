@@ -3,7 +3,7 @@ import { db, admin } from '../firebase-admin';
 export class ModerationService {
     static async getReports(status: 'pending' | 'resolved' | 'all' = 'pending', limit: number = 100) {
         try {
-            let query = db.collection('reports').orderBy('createdAt', 'desc');
+            let query = db().collection('reports').orderBy('createdAt', 'desc');
 
             if (status !== 'all') {
                 query = query.where('status', '==', status) as any;
@@ -22,7 +22,7 @@ export class ModerationService {
 
     static async resolveReport(reportId: string, resolution: string, adminId: string) {
         try {
-            await db.collection('reports').doc(reportId).update({
+            await db().collection('reports').doc(reportId).update({
                 status: 'resolved',
                 resolution,
                 resolvedBy: adminId,

@@ -11,10 +11,10 @@ export async function verifyAdmin(req: NextRequest) {
     const token = authHeader.split('Bearer ')[1];
 
     try {
-        const decodedToken = await auth.verifyIdToken(token);
+        const decodedToken = await auth().verifyIdToken(token);
 
         // Check Admin privilege in Firestore
-        const userDoc = await db.collection('users').doc(decodedToken.uid).get();
+        const userDoc = await db().collection('users').doc(decodedToken.uid).get();
         const userData = userDoc.data();
 
         if (!userData?.isAdmin) {

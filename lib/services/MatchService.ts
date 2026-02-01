@@ -3,7 +3,7 @@ import { db } from '../firebase-admin';
 export class MatchService {
     static async getRecentMatches(limit: number = 50) {
         try {
-            const snapshot = await db.collection('matches')
+            const snapshot = await db().collection('matches')
                 .orderBy('timestamp', 'desc')
                 .limit(limit)
                 .get();

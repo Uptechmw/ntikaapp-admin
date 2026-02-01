@@ -3,7 +3,7 @@ import { db, admin } from '../firebase-admin';
 export class UserService {
     static async getUsers(limit: number = 100) {
         try {
-            const snapshot = await db.collection('users')
+            const snapshot = await db().collection('users')
                 .orderBy('createdAt', 'desc')
                 .limit(limit)
                 .get();
@@ -21,7 +21,7 @@ export class UserService {
     static async searchUsers(query: string) {
         try {
             // Simple email search for admin purposes
-            const snapshot = await db.collection('users')
+            const snapshot = await db().collection('users')
                 .where('email', '>=', query)
                 .where('email', '<=', query + '\uf8ff')
                 .limit(50)
@@ -39,7 +39,7 @@ export class UserService {
 
     static async suspendUser(userId: string, status: boolean) {
         try {
-            await db.collection('users').doc(userId).update({
+            await db().collection('users').doc(userId).update({
                 suspended: status,
                 suspendedAt: status ? admin.firestore.FieldValue.serverTimestamp() : null
             });
@@ -52,7 +52,7 @@ export class UserService {
 
     static async verifyUser(userId: string, status: boolean) {
         try {
-            await db.collection('users').doc(userId).update({
+            await db().collection('users').doc(userId).update({
                 verified: status,
                 verifiedAt: status ? admin.firestore.FieldValue.serverTimestamp() : null
             });

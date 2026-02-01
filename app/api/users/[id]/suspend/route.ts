@@ -4,7 +4,7 @@ import { UserService } from '@/lib/services/UserService';
 
 export async function POST(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     const authResult = await verifyAdmin(req);
     if ('error' in authResult) {
@@ -12,7 +12,7 @@ export async function POST(
     }
 
     try {
-        const userId = params.id;
+        const { id: userId } = await params;
         await UserService.suspendUser(userId, true);
         return NextResponse.json({ success: true });
     } catch (error) {

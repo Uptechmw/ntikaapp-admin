@@ -14,9 +14,15 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
+let app;
+try {
+    app = !getApps().length && firebaseConfig.apiKey ? initializeApp(firebaseConfig) : getApp();
+} catch (e) {
+    app = null;
+}
+
+const auth = app ? getAuth(app) : null as any;
+const db = app ? getFirestore(app) : null as any;
+const storage = app ? getStorage(app) : null as any;
 
 export { app, auth, db, storage };

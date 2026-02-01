@@ -16,7 +16,18 @@ if (!admin.apps.length) {
     }
 }
 
-const db = admin.firestore();
-const auth = admin.auth();
+const getDb = () => {
+    if (!admin.apps.length) {
+        throw new Error("Firebase Admin not initialized. Check FIREBASE_SERVICE_ACCOUNT.");
+    }
+    return admin.firestore();
+};
 
-export { db, auth, admin };
+const getAuth = () => {
+    if (!admin.apps.length) {
+        throw new Error("Firebase Admin not initialized. Check FIREBASE_SERVICE_ACCOUNT.");
+    }
+    return admin.auth();
+};
+
+export { getDb as db, getAuth as auth, admin };

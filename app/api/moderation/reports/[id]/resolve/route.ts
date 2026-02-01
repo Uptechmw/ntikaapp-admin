@@ -4,7 +4,7 @@ import { ModerationService } from '@/lib/services/ModerationService';
 
 export async function POST(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     const authResult = await verifyAdmin(req);
     if ('error' in authResult) {
@@ -13,7 +13,7 @@ export async function POST(
 
     try {
         const { resolution } = await req.json();
-        const reportId = params.id;
+        const { id: reportId } = await params;
 
         await ModerationService.resolveReport(reportId, resolution, authResult.uid);
 

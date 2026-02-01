@@ -3,24 +3,24 @@ import { db, admin } from '../firebase-admin';
 export class AnalyticsService {
     static async getPlatformStats() {
         try {
-            const usersSnapshot = await db.collection('users').count().get();
+            const usersSnapshot = await db().collection('users').count().get();
             const totalUsers = usersSnapshot.data().count;
 
             const sevenDaysAgo = new Date();
             sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-            const activeUsersSnapshot = await db.collection('users')
+            const activeUsersSnapshot = await db().collection('users')
                 .where('lastActive', '>=', admin.firestore.Timestamp.fromDate(sevenDaysAgo))
                 .count()
                 .get();
             const activeUsers = activeUsersSnapshot.data().count;
 
-            const swipesSnapshot = await db.collection('analytics_events')
+            const swipesSnapshot = await db().collection('analytics_events')
                 .where('event', '==', 'swipe')
                 .count()
                 .get();
             const totalSwipes = swipesSnapshot.data().count;
 
-            const matchesSnapshot = await db.collection('matches').count().get();
+            const matchesSnapshot = await db().collection('matches').count().get();
             const totalMatches = matchesSnapshot.data().count;
 
             return {
@@ -43,7 +43,7 @@ export class AnalyticsService {
             const startDate = new Date();
             startDate.setDate(startDate.getDate() - days);
 
-            const snapshot = await db.collection('users')
+            const snapshot = await db().collection('users')
                 .where('createdAt', '>=', admin.firestore.Timestamp.fromDate(startDate))
                 .orderBy('createdAt', 'asc')
                 .get();
@@ -69,7 +69,7 @@ export class AnalyticsService {
 
     static async getTopEvents(limit: number = 10) {
         try {
-            const snapshot = await db.collection('analytics_events')
+            const snapshot = await db().collection('analytics_events')
                 .orderBy('timestamp', 'desc')
                 .limit(100)
                 .get();
