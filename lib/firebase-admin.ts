@@ -12,12 +12,36 @@ const initAdmin = () => {
 
         const serviceAccount = JSON.parse(saVar);
 
-        // Robust private key cleaning
+        // Extremely robust private key cleaning
         if (serviceAccount.private_key) {
-            serviceAccount.private_key = serviceAccount.private_key
-                .replace(/\\n/g, '\n') // Fix escaped newlines
-                .replace(/\n\n/g, '\n') // Fix double newlines
-                .trim();
+            let key = serviceAccount.private_key;
+
+            // 1. Convert literal \n to actual newlines
+            key = key.replace(/\\n/g, '\n');
+
+            // 2. Remove any accidentally doubled backslashes
+            key = key.replace(/\\\\n/g, '\n');
+
+            // 3. Normalize the PEM header/footer if they are slightly malformed
+            // Search for "BEGIN PRIVATE KEY" and ensure it has 5 dashes
+            const beginMatch = key.match(/BEGIN PRIVATE KEY/);
+            const endMatch = key.match(/END PRIVATE KEY/);
+
+            if (beginMatch && endMatch) {
+                // Extract just the base64 part between any kind of dashes/labels
+                // This fix handles cases where dashes were lost or doubled
+                const base64Part = key
+                    .split(/-----BEGIN [^-]+-----/)[1]
+                    ?.split(/-----END [^-]+-----/)[0]
+                    ?.replace(/\s+/g, ''); // Remove all whitespace/newlines from base64
+
+                if (base64Part) {
+                    // Reconstruct perfectly
+                    key = `-----BEGIN PRIVATE KEY-----\n${base64Part}\n-----END PRIVATE KEY-----\n`;
+                }
+            }
+
+            serviceAccount.private_key = key.trim();
         }
 
         admin.initializeApp({

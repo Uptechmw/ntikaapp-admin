@@ -16,7 +16,7 @@ export async function GET() {
                         length: key.length,
                         startsWithHeader: key.trim().startsWith('-----BEGIN PRIVATE KEY-----'),
                         endsWithHeader: key.trim().endsWith('-----END PRIVATE KEY-----'),
-                        preview: key.substring(0, 15) + '...'
+                        first40Chars: key.trim().substring(0, 40)
                     };
                 } catch { return 'JSON-parse-failed'; }
             })() : 'missing'
