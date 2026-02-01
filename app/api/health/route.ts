@@ -5,10 +5,11 @@ export async function GET() {
     return NextResponse.json({
         status: 'ok',
         time: new Date().toISOString(),
-        version: 'debug-auth-v8',
+        version: 'debug-auth-v9',
         env: {
             hasServiceAccount: !!process.env.FIREBASE_SERVICE_ACCOUNT,
             projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+            databaseId: db().databaseId, // Confirm which database we are hitting
             keyInfo: process.env.FIREBASE_SERVICE_ACCOUNT ? (() => {
                 try {
                     const sa = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
