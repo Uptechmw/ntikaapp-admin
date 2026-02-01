@@ -41,9 +41,12 @@ export default function UsersPage() {
     const handleAction = async (userId: string, action: 'suspend' | 'unsuspend' | 'verify') => {
         setLoadingAction(userId);
         try {
+            const user = users.find(u => (u.id || u.uid) === userId);
+            const isSuspended = user?.suspended || user?.isSuspended;
+            const isVerified = user?.verified || user?.isVerified;
+
             if (action === 'verify') {
-                const user = users.find(u => u.id === userId);
-                const newStatus = !user?.isVerified;
+                const newStatus = !isVerified;
                 await fetchWithAuth(`/api/users/${userId}/verify`, {
                     method: "POST",
                     body: JSON.stringify({ verified: newStatus })
@@ -143,19 +146,19 @@ export default function UsersPage() {
                                             <div>
                                                 <div className="font-bold text-gray-900 flex items-center gap-1">
                                                     {user.displayName || "Unknown User"}
-                                                    {user.isVerified && <CheckCircle className="w-4 h-4 text-blue-500 fill-blue-500/10" />}
+                                                    {(user.verified || user.isVerified) && <CheckCircle className="w-4 h-4 text-blue-500 fill-blue-500/10" />}
                                                 </div>
                                                 <div className="text-xs text-gray-500">{user.email}</div>
                                             </div>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${user.isSuspended
+                                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${(user.suspended || user.isSuspended)
                                             ? "bg-red-50 text-red-600"
                                             : "bg-green-50 text-green-600"
                                             }`}>
-                                            <span className={`w-1.5 h-1.5 rounded-full ${user.isSuspended ? "bg-red-500" : "bg-green-500"}`} />
-                                            {user.isSuspended ? "Suspended" : "Active"}
+                                            <span className={`w-1.5 h-1.5 rounded-full ${(user.suspended || user.isSuspended) ? "bg-red-500" : "bg-green-500"}`} />
+                                            {(user.suspended || user.isSuspended) ? "Suspended" : "Active"}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4">
@@ -178,13 +181,13 @@ export default function UsersPage() {
                                                 <Shield className="w-4 h-4" />
                                             </button>
                                             <button
-                                                onClick={() => handleAction(user.id || user.uid, user.isSuspended ? 'unsuspend' : 'suspend')}
+                                                onClick={() => handleAction(user.id || user.uid, (user.suspended || user.isSuspended) ? 'unsuspend' : 'suspend')}
                                                 disabled={loadingAction === (user.id || user.uid)}
-                                                className={`p-2 border border-transparent hover:border-gray-100 hover:bg-white rounded-xl transition-all shadow-sm ${user.isSuspended ? "text-green-500" : "text-gray-400 hover:text-red-500"
+                                                className={`p-2 border border-transparent hover:border-gray-100 hover:bg-white rounded-xl transition-all shadow-sm ${(user.suspended || user.isSuspended) ? "text-green-500" : "text-gray-400 hover:text-red-500"
                                                     }`}
-                                                title={user.isSuspended ? "Unsuspend" : "Suspend"}
+                                                title={(user.suspended || user.isSuspended) ? "Unsuspend" : "Suspend"}
                                             >
-                                                {user.isSuspended ? <CheckCircle className="w-4 h-4" /> : <Ban className="w-4 h-4" />}
+                                                {(user.suspended || user.isSuspended) ? <CheckCircle className="w-4 h-4" /> : <Ban className="w-4 h-4" />}
                                             </button>
                                             <button className="p-2 border border-transparent hover:border-gray-100 hover:bg-white rounded-xl text-gray-400 hover:text-gray-900 transition-all shadow-sm">
                                                 <MoreVertical className="w-4 h-4" />

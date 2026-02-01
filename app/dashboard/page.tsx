@@ -93,7 +93,7 @@ export default function DashboardPage() {
                 <StatCard
                     title="Total Users"
                     value={stats?.totalUsers?.toLocaleString() || "0"}
-                    subtext={`Active: ${stats?.activeUsers?.toLocaleString()}, New: ${stats?.newSignups?.toLocaleString()}`}
+                    subtext={`Active: ${stats?.activeUsers?.toLocaleString()}, New: ${stats?.newSignups?.toLocaleString() || 0}`}
                     icon={Users}
                     trend="+2.5%"
                     trendUp={true}
@@ -105,7 +105,7 @@ export default function DashboardPage() {
                     <div className="flex justify-between items-start">
                         <div>
                             <h3 className="text-gray-500 text-sm font-medium mb-1">Total Podcasts</h3>
-                            <div className="text-3xl font-bold text-gray-900">{stats?.activeMatches}</div>
+                            <div className="text-3xl font-bold text-gray-900">{stats?.totalPodcasts || 0}</div>
                         </div>
                         <div className="p-3 rounded-xl bg-orange-100 bg-opacity-50">
                             <Mic className="w-6 h-6 text-orange-500" />
@@ -114,11 +114,11 @@ export default function DashboardPage() {
                     <div className="flex items-center gap-8 mt-2">
                         <div>
                             <span className="block text-xs text-gray-400 font-medium">Free:</span>
-                            <span className="text-sm font-bold text-gray-900">{stats?.freeMatches}</span>
+                            <span className="text-sm font-bold text-gray-900">{stats?.freePodcasts || 0}</span>
                         </div>
                         <div>
                             <span className="block text-xs text-gray-400 font-medium">Premium:</span>
-                            <span className="text-sm font-bold text-gray-900">{stats?.premiumMatches}</span>
+                            <span className="text-sm font-bold text-gray-900">{stats?.premiumPodcasts || 0}</span>
                         </div>
                         <button className="bg-black text-white text-xs px-3 py-2 rounded-lg flex items-center gap-1 ml-auto">
                             + Add New
@@ -130,15 +130,19 @@ export default function DashboardPage() {
                 <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col justify-between h-40">
                     <div className="flex justify-between items-start">
                         <div>
-                            <h3 className="text-gray-500 text-sm font-medium mb-1">Total Quizzes</h3>
-                            <div className="text-3xl font-bold text-gray-900">{stats?.totalRevenue}</div>
+                            <h3 className="text-gray-500 text-sm font-medium mb-1">Total Revenue</h3>
+                            <div className="text-3xl font-bold text-gray-900">${stats?.totalRevenue || 0}</div>
                         </div>
-                        <div className="p-3 rounded-xl bg-blue-100 bg-opacity-50">
-                            <HelpCircle className="w-6 h-6 text-blue-500" />
+                        <div className="p-3 rounded-xl bg-green-100 bg-opacity-50">
+                            <RefreshCw className="w-6 h-6 text-green-500" />
                         </div>
                     </div>
+                    <div className="flex items-center gap-2 mt-2">
+                        <span className="text-xs text-gray-400">Past 30 days growth:</span>
+                        <span className="text-xs font-bold text-green-600">+18%</span>
+                    </div>
                     <button className="bg-black text-white text-xs px-4 py-2 rounded-lg flex items-center gap-1 self-end mt-auto">
-                        + Add New
+                        View Details
                     </button>
                 </div>
             </div>
@@ -151,7 +155,7 @@ export default function DashboardPage() {
 
             {/* Row 3: Transactions & Footer */}
             <div className="grid grid-cols-1 gap-6">
-                <RecentTransactions transactions={MOCK_TRANSACTIONS} />
+                <RecentTransactions transactions={stats?.recentActivity || []} />
             </div>
         </div>
     );
