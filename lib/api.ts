@@ -1,7 +1,8 @@
 
 import { auth } from "@/lib/firebase";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://ntikaapp-api.vercel.app";
+const API_URL = "";
+// const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://ntikaapp-api.vercel.app";
 
 export async function fetchWithAuth(endpoint: string, options: RequestInit = {}) {
     const user = auth.currentUser;
